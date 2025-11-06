@@ -4,6 +4,8 @@ namespace Testcontainers.OpenGauss;
 [PublicAPI]
 public sealed class OpenGaussContainer : DockerContainer, IDatabaseContainer
 {
+    private const string GaussSetupEnvironment = "export GAUSSHOME=/usr/local/opengauss && export PATH=$GAUSSHOME/bin:$PATH && export LD_LIBRARY_PATH=$GAUSSHOME/lib:$LD_LIBRARY_PATH";
+
     private readonly OpenGaussConfiguration _configuration;
 
     /// <summary>
@@ -44,7 +46,8 @@ public sealed class OpenGaussContainer : DockerContainer, IDatabaseContainer
         await CopyAsync(Encoding.Default.GetBytes(scriptContent), scriptFilePath, fileMode: Unix.FileMode644, ct: ct)
             .ConfigureAwait(false);
 
-        return await ExecAsync(new[] { "/bin/bash", "-c", $"export GAUSSHOME=/usr/local/opengauss && export PATH=$GAUSSHOME/bin:$PATH && export LD_LIBRARY_PATH=$GAUSSHOME/lib:$LD_LIBRARY_PATH && gsql -d {_configuration.Database} -f {scriptFilePath}" }, ct)
+        var command = $"{GaussSetupEnvironment} && gsql -d {_configuration.Database} -f {scriptFilePath}";
+        return await ExecAsync(new[] { "/bin/bash", "-c", command }, ct)
             .ConfigureAwait(false);
     }
 }

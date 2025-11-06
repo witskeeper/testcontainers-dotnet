@@ -123,6 +123,8 @@ public sealed class OpenGaussBuilder : ContainerBuilder<OpenGaussBuilder, OpenGa
     /// <inheritdoc cref="IWaitUntil" />
     private sealed class WaitUntil : IWaitUntil
     {
+        private const string GaussSetupEnvironment = "export GAUSSHOME=/usr/local/opengauss && export PATH=$GAUSSHOME/bin:$PATH && export LD_LIBRARY_PATH=$GAUSSHOME/lib:$LD_LIBRARY_PATH";
+
         private readonly IList<string> _command;
 
         /// <summary>
@@ -132,7 +134,8 @@ public sealed class OpenGaussBuilder : ContainerBuilder<OpenGaussBuilder, OpenGa
         public WaitUntil(OpenGaussConfiguration configuration)
         {
             // Use bash to set up the environment and run gs_ctl to check if the database is ready
-            _command = new List<string> { "/bin/bash", "-c", "export GAUSSHOME=/usr/local/opengauss && export PATH=$GAUSSHOME/bin:$PATH && export LD_LIBRARY_PATH=$GAUSSHOME/lib:$LD_LIBRARY_PATH && gs_ctl status -D /var/lib/opengauss/data" };
+            var command = $"{GaussSetupEnvironment} && gs_ctl status -D /var/lib/opengauss/data";
+            _command = new List<string> { "/bin/bash", "-c", command };
         }
 
         /// <summary>
