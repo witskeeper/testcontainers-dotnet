@@ -44,7 +44,7 @@ public sealed class OpenGaussContainer : DockerContainer, IDatabaseContainer
         await CopyAsync(Encoding.Default.GetBytes(scriptContent), scriptFilePath, fileMode: Unix.FileMode644, ct: ct)
             .ConfigureAwait(false);
 
-        return await ExecAsync(new[] { "gsql", "-U", _configuration.Username, "-d", _configuration.Database, "-f", scriptFilePath }, ct)
+        return await ExecAsync(new[] { "/bin/bash", "-c", $"export GAUSSHOME=/usr/local/opengauss && export PATH=$GAUSSHOME/bin:$PATH && export LD_LIBRARY_PATH=$GAUSSHOME/lib:$LD_LIBRARY_PATH && gsql -d {_configuration.Database} -f {scriptFilePath}" }, ct)
             .ConfigureAwait(false);
     }
 }

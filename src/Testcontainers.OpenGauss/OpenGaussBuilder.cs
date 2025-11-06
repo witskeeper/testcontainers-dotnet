@@ -131,8 +131,8 @@ public sealed class OpenGaussBuilder : ContainerBuilder<OpenGaussBuilder, OpenGa
         /// <param name="configuration">The container configuration.</param>
         public WaitUntil(OpenGaussConfiguration configuration)
         {
-            // Use gs_ctl to check if the database is ready
-            _command = new List<string> { "gs_ctl", "status", "-D", "/var/lib/opengauss/data" };
+            // Use bash to set up the environment and run gs_ctl to check if the database is ready
+            _command = new List<string> { "/bin/bash", "-c", "export GAUSSHOME=/usr/local/opengauss && export PATH=$GAUSSHOME/bin:$PATH && export LD_LIBRARY_PATH=$GAUSSHOME/lib:$LD_LIBRARY_PATH && gs_ctl status -D /var/lib/opengauss/data" };
         }
 
         /// <summary>
